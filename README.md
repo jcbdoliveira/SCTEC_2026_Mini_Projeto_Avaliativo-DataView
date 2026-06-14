@@ -1,0 +1,1 @@
+# SCTEC_2026_Mini_Projeto_Avaliativo_Mod1-DataView
