@@ -18,15 +18,15 @@ def main():
     # 0. Preparação do ambiente (instalação de pacotes e criação de pastas)    
     # Garantir que as dependências estejam instaladas
     instalar_pacotes()
-    # Garantir que os diretórios necessários existam
+    # Garantir que os diretórios principais existam
     criar_pastas()
     #------------------------------------------------------
 
     #------------------------------------------------------
-    # 1. Geração de Dados ou Carregamento do Dataset
+    # 1. Geração de dados sintéticos em um novo dataset ou carregando de um CSV existente.
     # Se passado argumento "--get", carrega o dataset existente.
     # Caso contrário, gera um novo dataset.
-    if len(sys.argv) > 1 and sys.argv[1].lower() in ('--get', 'get', 'carregar'):
+    if len(sys.argv) > 1 and sys.argv[1].lower() in ('--csv', 'csv', 'carregar'):
         print("Carregando dataset de vendas...")
         dataset_vendas = getDatasetVendas()
     else:

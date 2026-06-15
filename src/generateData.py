@@ -70,7 +70,9 @@ def gerarDatasetVendas(n_registros=150, seed=42):
     return pd.DataFrame(dados) 
 
 def getDatasetVendas():   
-    dados = pd.read_csv('data/raw/vendas.csv')
+    caminho="../data/raw/online_retail_II.csv"  
+    dados = pd.read_csv(caminho)
+    print(f"{len(dados)} linhas carregadas.")    
     return dados
 
 def salvarDatasetVendas(df_bruto):
