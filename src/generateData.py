@@ -25,8 +25,8 @@ def gerarDatasetVendas(n_registros=150, seed=42):
     }
     categorias = { 
         "Notebook": "Computadores", "Smartphone": "Celulares",
-        "Tablet": "Celulares", "Monitor": "Computadores", "Teclado": "Periféricos",
-        "Mouse": "Periféricos" 
+        "Tablet": "Celulares", "Monitor": "Computadores", "Teclado": "Perifericos",
+        "Mouse": "Perifericos" 
     }
     regioes = ["Sudeste", "Sul", "Nordeste", "Centro-Oeste", "Norte"]
     clientes = [f"Cliente_{i:03d}" for i in range(1, 31)]
@@ -70,9 +70,10 @@ def gerarDatasetVendas(n_registros=150, seed=42):
     return pd.DataFrame(dados) 
 
 def getDatasetVendas():   
-    caminho="../data/raw/online_retail_II.csv"  
+    caminho="https://github.com/jcbdoliveira/SCTEC_2026_Mini_Projeto_Avaliativo-DataView/blob/main/data/raw/sales.csv?raw=true"
     dados = pd.read_csv(caminho)
-    print(f"{len(dados)} linhas carregadas.")    
+    print(f"{len(dados)} linhas carregadas.")  
+    salvarDatasetVendas(pd.DataFrame(dados))
     return dados
 
 def salvarDatasetVendas(df_bruto):
@@ -82,5 +83,6 @@ def salvarDatasetVendas(df_bruto):
         print(f"Arquivo existente removido: {arquivo}")
 
     df_bruto.to_csv(arquivo, index=False)
-    print(f"Dataset gerado com {len(df_bruto)} registros.")
+
+    print(f"Dataset gerado e salvo com {len(df_bruto)} registros.")
     print(df_bruto.head())

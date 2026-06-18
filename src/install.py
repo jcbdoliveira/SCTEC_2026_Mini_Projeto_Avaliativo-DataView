@@ -12,6 +12,7 @@ def instalar_pacotes():
     for pkg in required_packages:
         try:
             __import__(pkg)
+            print(f"Biblioteca instalada. Versão do {pkg}:", __import__(pkg).__version__)
         except ImportError:
             print(f"Instalando dependência de Python em tempo de execução: {pkg}...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])    

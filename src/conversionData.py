@@ -9,18 +9,23 @@ import os
 # ==============================================================================
 # RF03 – Limpar e Tratar os Dados
 # ==============================================================================
-def limpar_strings_regex(df, colunas):
+def normalizar_texto(texto):
     """
-    Usa expressões regulares para normalizar colunas de texto:
-    - Colapsa múltiplos espaços internos em um único espaço (re.sub)
-    - Remove espaços nas pontas da string (.strip())
-    - Preserva células nulas sem lançar erro (pd.notna)
+    Limpa um valor de texto:
+    - troca qualquer sequencia de espacos por um unico espaco
+    - remove os espacos das pontas
     """
+    if pd.isna(texto):
+        return texto
+    texto = str(texto)
+    texto = re.sub(r"\s+", " ", texto)   # colapsa espacos repetidos
+    return texto.strip()                 # remove espacos das pontas
+
+def limpar_strings(df, colunas):
+    """Aplica a normalizacao de texto nas colunas indicadas."""
     df = df.copy()
-    for col in colunas:
-        df[col] = df[col].apply(
-            lambda s: re.sub(r"\s+", " ", str(s)).strip() if pd.notna(s) else s
-        )
+    for coluna in colunas:
+        df[coluna] = df[coluna].apply(normalizar_texto)
     return df
 
 def limpar_dados(df):
@@ -38,11 +43,13 @@ def limpar_dados(df):
     
     # --- Etapa 1: limpeza de strings com regex ---
     colunas_texto = df.select_dtypes(include="object").columns
-    df = limpar_strings_regex(df, colunas_texto)
+    df = limpar_strings(df, colunas_texto)
     
     # --- Etapa 2: conversão de datas ---
+    #Substitui datas inválidas por NaT (Not a Time = valor nulo de data)
     df["data_venda"] = pd.to_datetime(df["data_venda"], errors="coerce")
     relatorio["datas_invalidas_removidas"] = int(df["data_venda"].isnull().sum())
+    # Remove linhas com datas inválidas (NaT)
     df = df.dropna(subset=["data_venda"])
     
     # --- Etapa 3: remoção de nulos em colunas obrigatórias ---
@@ -269,7 +276,6 @@ def calcular_estatisticas_numpy(df):
             
     return stats
 
-
 # ==============================================================================
 # RF09 – Criar Visualizações com Matplotlib e Seaborn
 # ==============================================================================
@@ -280,7 +286,7 @@ def gerar_visualizacoes(df, metricas, output_dir="outputs/graficos"):
     2. Barras — top 5 produtos por receita (ranking)
     3. Boxplot — distribuição de receita por região (dispensar/outliers)
     """
-    os.makedirs(output_dir, exist_ok=True)
+    #os.makedirs(output_dir, exist_ok=True)
     sns.set_theme(style="whitegrid", palette="muted")
     
     meses_abrev = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"]
@@ -320,7 +326,7 @@ def gerar_visualizacoes(df, metricas, output_dir="outputs/graficos"):
     
     # Gráfico 3: Boxplot — Distribuição de Receita por Região
     fig, ax = plt.subplots(figsize=(10, 5))
-    # Ordenar as regioes por valor de mediana ou total para ficar mais harmonioso
+    # Ordenar as regioes por valor de mediana ou total para ficar mais correto
     sns.boxplot(data=df, x="regiao", y="receita_total", ax=ax, hue="regiao", legend=False)
     ax.set_title("Distribuição de Receita por Região", fontsize=14, pad=15, fontweight='bold')
     ax.set_xlabel("Região")
@@ -357,7 +363,7 @@ def exportar_resultados(metricas, clientes, stats):
     - JSON: estatísticas gerais calculadas com NumPy
     Lê o JSON de volta para confirmar.
     """
-    os.makedirs("outputs", exist_ok=True)
+    #os.makedirs("outputs", exist_ok=True)
     
     # --- Exportação CSV ---
     # encoding="utf-8-sig" garante compatibilidade com MS Excel

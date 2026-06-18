@@ -1,16 +1,17 @@
 # Importação de bibliotecas
 import sys
 import os
+import json
 import pandas as pd
-from install import instalar_pacotes, criar_pastas
-from generateData import getDatasetVendas, gerarDatasetVendas
-from inspectData import inspecionar_dados
+from src.install import instalar_pacotes, criar_pastas
+from src.generateData import getDatasetVendas, gerarDatasetVendas
+from src.inspectData import inspecionar_dados
 #from conversionData import limpar_dados, 
 #                           tratar_outliers, 
 #                           criar_colunas_derivadas, 
 #                           aplicar_transformacao
 #como ficou muito grnade a importação, usei *
-from conversionData import *
+from src.conversionData import *
 
 def main():
     print("Iniciando Pipeline de ETL DataView...")
@@ -53,16 +54,19 @@ def main():
     df_v1, relatorio = limpar_dados(dataset_vendas)
     os.makedirs("data/processed/v1_com_outliers", exist_ok=True)
     df_v1.to_csv("data/processed/v1_com_outliers/vendas_v1.csv", index=False)
-    relatorio.to_json("data/processed/v1_com_outliers/relatorio_limpeza_v1.csv", orient="records")
+    with open("data/processed/v1_com_outliers/relatorio_limpeza_v1.json", 'w', encoding='utf-8') as f:
+        json.dump(relatorio, f, indent=2, ensure_ascii=False)
     print("\n2. Dataset limpo (com outliers) salvo em data/processed/v1_com_outliers/vendas_v1.csv")
     #------------------------------------------------------
 
     #------------------------------------------------------
-    # 4. Tratamento de Outliers
+    # 4. Tratamento de OutliersPP
     # Cópia temporária para detecção de outliers em quantidade e receita_total
     df_v1_tmp = df_v1.copy()
     df_v1_tmp["receita_total"] = df_v1_tmp["quantidade"] * df_v1_tmp["preco_unitario"]
-    
+
+# Utilizado remover outliers pois os dados foram imputados por geração sintetica, ou seja, são erros 
+# claros de coleta ou inserção de dados (ex.: idade = 300 anos)..
     print("\n=== DETECÇÃO DE OUTLIERS (IQR) ===")
     df_v2 = tratar_outliers(
         df_v1_tmp,
@@ -106,16 +110,25 @@ def main():
     # 9. Geração de Gráficos
     print("\nGerando visualizações...")
     gerar_visualizacoes(df_final, metricas)
+
+    # 10. Organizar o Código em Funções Reutilizáveis & Ordem Superior
+    # df_demo e df_demo2 são apenas demonstrações — df principal não é alterado. 
+    df_demo = aplicar_transformacao(df_final, "receita_total", lambda x: "Alto" if x > 5000 else "Normal") 
+    print("=== EXEMPLO: classificação por ticket ===") 
+    print(df_demo[["receita_total", "receita_total_transformado"]].head()) 
+
+    df_demo2 = aplicar_transformacao(df_final, "receita_total", lambda x: round(x / 1000, 2)) 
+    print("\n=== EXEMPLO: receita em milhares (R$ k) ===") 
+    print(df_demo2[["receita_total", "receita_total_transformado"]].head())
     
-    # 10. Exportação dos Resultados
+    # 11. Exportação dos Resultados
     print("\nExportando CSVs e JSON...")
     exportar_resultados(metricas, clientes, stats)
     
-    # 11. Consolidar e Salvar Dataset Final
-    os.makedirs("data/final", exist_ok=True)
+    # 12. Consolidar e Salvar Dataset Final
+    #os.makedirs("data/final", exist_ok=True)
     df_final.to_csv("data/final/vendas_final.csv", index=False)
     print("\nETL CONCLUÍDO COM SUCESSO! Dataset final gravado em data/final/vendas_final.csv")
-
 
 if __name__ == "__main__":
     main()
