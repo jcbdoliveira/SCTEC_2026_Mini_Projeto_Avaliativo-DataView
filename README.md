@@ -1,7 +1,12 @@
+
+<p align="center">
+  <img src="img/logo_sctec.png" alt="logo SCTEC" width="240" />
+</p>
+
 # 📊 SCTEC 2026 Mini Projeto Avaliativo: DataView
 
 ## 🔍 Sobre o projeto
-O **DataView** é um projeto de análise exploratória de dados focado em vendas. Ele utiliza um notebook Python para:
+O **DataView** é um projeto de análise exploratória de dados focado em vendas. Ele utiliza um script Python para:
 
 - ler dados de vendas
 - limpar e tratar outliers
@@ -70,6 +75,8 @@ SCTEC_2026_Mini_Projeto_Avaliativo-DataView/
 │   │       └── vendas_v2.csv
 │   └── final/
 │       └── vendas_final.csv
+├── img/
+│   └── logo_sctec.png
 ├── notebooks/
 │   └── dataview.ipynb
 ├── outputs/
