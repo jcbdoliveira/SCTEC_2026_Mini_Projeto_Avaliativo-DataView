@@ -4,7 +4,6 @@ import numpy as np
 import json
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
 
 # ==============================================================================
 # RF03 – Limpar e Tratar os Dados
@@ -21,12 +20,15 @@ def normalizar_texto(texto):
     texto = re.sub(r"\s+", " ", texto)   # colapsa espacos repetidos
     return texto.strip()                 # remove espacos das pontas
 
-def limpar_strings(df, colunas):
-    """Aplica a normalizacao de texto nas colunas indicadas."""
-    df = df.copy()
-    for coluna in colunas:
-        df[coluna] = df[coluna].apply(normalizar_texto)
-    return df
+def limpar_strings_regex(df, colunas):  
+    df = df.copy() # Não modifica o DataFrame original  
+    for col in colunas:  
+        df[col] = df[col].apply(  
+        # pd.notna(s): verifica se o valor NÃO é nulo antes de processar  
+        # re.sub(r"\s+", " ", str(s)): substitui sequências de espaços por um único espaço  
+        # .strip(): remove espaços residuais nas pontas  
+        lambda s: re.sub(r"\s+", " ", str(s)).strip() if pd.notna(s) else s)  
+    return df 
 
 def limpar_dados(df):
     """
@@ -43,7 +45,7 @@ def limpar_dados(df):
     
     # --- Etapa 1: limpeza de strings com regex ---
     colunas_texto = df.select_dtypes(include="object").columns
-    df = limpar_strings(df, colunas_texto)
+    df = limpar_strings_regex(df, colunas_texto)
     
     # --- Etapa 2: conversão de datas ---
     #Substitui datas inválidas por NaT (Not a Time = valor nulo de data)
@@ -279,12 +281,13 @@ def calcular_estatisticas_numpy(df):
 # ==============================================================================
 # RF09 – Criar Visualizações com Matplotlib e Seaborn
 # ==============================================================================
-def gerar_visualizacoes(df, metricas, output_dir="outputs/graficos"):
+def gerar_visualizacoes(df, metricas, mostra_grafico=False, output_dir="outputs/graficos"):
     """
     Gera e exporta 3 gráficos informativos em PNG:
     1. Linha — receita total por mês (tendência ao longo do tempo)
     2. Barras — top 5 produtos por receita (ranking)
-    3. Boxplot — distribuição de receita por região (dispensar/outliers)
+    3. Barras — categorias por receita (comparação)
+    4. Boxplot — distribuição de receita por região (dispensar/outliers)
     """
     #os.makedirs(output_dir, exist_ok=True)
     sns.set_theme(style="whitegrid", palette="muted")
@@ -305,13 +308,15 @@ def gerar_visualizacoes(df, metricas, output_dir="outputs/graficos"):
             receitas_mapeadas.append(0)
             
     ax.plot(range(1, 13), receitas_mapeadas, marker="o", color="#3b82f6", linewidth=2.5, label="Receita")
-    ax.set_title("Receita Total por Mês (2024)", fontsize=14, pad=15, fontweight='bold')
+    ax.set_title(f"Receita Total por Mês ({df['ano'].iloc[0]})", fontsize=14, pad=15, fontweight='bold')
     ax.set_xlabel("Mês")
     ax.set_ylabel("Receita (R$)")
     ax.set_xticks(range(1, 13))
     ax.set_xticklabels(meses_abrev)
     fig.tight_layout()
     fig.savefig(f"{output_dir}/receita_por_mes.png", dpi=120)
+    if mostra_grafico:
+        plt.show()        
     plt.close()
     
     # Gráfico 2: Barras Horizontais — Top 5 Produtos
@@ -322,9 +327,23 @@ def gerar_visualizacoes(df, metricas, output_dir="outputs/graficos"):
     ax.set_ylabel("Produto")
     fig.tight_layout()
     fig.savefig(f"{output_dir}/top_produtos.png", dpi=120)
+    if mostra_grafico:
+        plt.show()
+    plt.close()
+
+    # Gráfico 3: Barras Horizontais — Top 5 Categorias
+    fig, ax = plt.subplots(figsize=(10, 5))
+    sns.barplot(data=metricas["por_categoria"], y="categoria", x="receita_total", ax=ax, hue="categoria", legend=False)
+    ax.set_title("Categorias em Receita Total", fontsize=14, pad=15, fontweight='bold')
+    ax.set_xlabel("Receita Total (R$)")
+    ax.set_ylabel("Categoria")
+    fig.tight_layout()
+    fig.savefig(f"{output_dir}/categorias.png", dpi=120)
+    if mostra_grafico:
+        plt.show()
     plt.close()
     
-    # Gráfico 3: Boxplot — Distribuição de Receita por Região
+    # Gráfico 4: Boxplot — Distribuição de Receita por Região
     fig, ax = plt.subplots(figsize=(10, 5))
     # Ordenar as regioes por valor de mediana ou total para ficar mais correto
     sns.boxplot(data=df, x="regiao", y="receita_total", ax=ax, hue="regiao", legend=False)
@@ -334,6 +353,8 @@ def gerar_visualizacoes(df, metricas, output_dir="outputs/graficos"):
     plt.xticks(rotation=20)
     fig.tight_layout()
     fig.savefig(f"{output_dir}/dist_regiao.png", dpi=120)
+    if mostra_grafico:
+        plt.show()
     plt.close()
     
     print(f"3 gráficos salvos em: {output_dir}")

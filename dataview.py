@@ -1,9 +1,14 @@
+from src.install import instalar_pacotes, criar_pastas
+# Garantir que as dependências estejam instaladas
+instalar_pacotes()
+
 # Importação de bibliotecas
 import sys
 import os
 import json
 import pandas as pd
-from src.install import instalar_pacotes, criar_pastas
+#------------------------------------------------------
+
 from src.generateData import getDatasetVendas, gerarDatasetVendas
 from src.inspectData import inspecionar_dados
 #from conversionData import limpar_dados, 
@@ -22,17 +27,25 @@ def main():
     # Garantir que os diretórios principais existam
     criar_pastas()
     #------------------------------------------------------
-
+    
     #------------------------------------------------------
     # 1. Geração de dados sintéticos em um novo dataset ou carregando de um CSV existente.
-    # Se passado argumento "--get", carrega o dataset existente.
+    # Se passado argumento "--csv", carrega o dataset existente.
     # Caso contrário, gera um novo dataset.
+    mostra_grafico = False
     if len(sys.argv) > 1 and sys.argv[1].lower() in ('--csv', 'csv', 'carregar'):
         print("Carregando dataset de vendas...")
         dataset_vendas = getDatasetVendas()
+        
+        if len(sys.argv) > 2 and sys.argv[2].lower() in ('--show'):
+            mostra_grafico = True
+
     else:
         print("Gerando novo dataset de vendas...")
         dataset_vendas = gerarDatasetVendas()
+        
+        if len(sys.argv) > 1 and sys.argv[1].lower() in ('--show'):
+            mostra_grafico = True
     #------------------------------------------------------
 
     #------------------------------------------------------
@@ -52,7 +65,7 @@ def main():
     # --- Etapa 4: garantia de tipos numéricos ---
     # --- Relatório final ---
     df_v1, relatorio = limpar_dados(dataset_vendas)
-    os.makedirs("data/processed/v1_com_outliers", exist_ok=True)
+    #os.makedirs("data/processed/v1_com_outliers", exist_ok=True)
     df_v1.to_csv("data/processed/v1_com_outliers/vendas_v1.csv", index=False)
     with open("data/processed/v1_com_outliers/relatorio_limpeza_v1.json", 'w', encoding='utf-8') as f:
         json.dump(relatorio, f, indent=2, ensure_ascii=False)
@@ -60,7 +73,7 @@ def main():
     #------------------------------------------------------
 
     #------------------------------------------------------
-    # 4. Tratamento de OutliersPP
+    # 4. Tratamento de Outliers
     # Cópia temporária para detecção de outliers em quantidade e receita_total
     df_v1_tmp = df_v1.copy()
     df_v1_tmp["receita_total"] = df_v1_tmp["quantidade"] * df_v1_tmp["preco_unitario"]
@@ -80,7 +93,7 @@ def main():
     print(f"v2 = {len(df_v2)} linhas (outliers removidos)")
     print(f"Diferença = {len(df_v1) - len(df_v2)} linhas removidas pelo IQR")
     
-    os.makedirs("data/processed/v2_outliers_tratado", exist_ok=True)
+    #os.makedirs("data/processed/v2_outliers_tratado", exist_ok=True)
     df_v2.to_csv("data/processed/v2_outliers_tratado/vendas_v2.csv", index=False)
     print("Dataset tratado (v2) salvo em data/processed/v2_outliers_tratado/vendas_v2.csv")
     #------------------------------------------------------
@@ -109,7 +122,7 @@ def main():
     
     # 9. Geração de Gráficos
     print("\nGerando visualizações...")
-    gerar_visualizacoes(df_final, metricas)
+    gerar_visualizacoes(df_final, metricas, mostra_grafico)
 
     # 10. Organizar o Código em Funções Reutilizáveis & Ordem Superior
     # df_demo e df_demo2 são apenas demonstrações — df principal não é alterado. 

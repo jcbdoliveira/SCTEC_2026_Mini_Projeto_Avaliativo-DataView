@@ -6,7 +6,7 @@ import subprocess
 #para o projeto, mesmo que o usuário não tenha um ambiente virtual configurado.
 
 #se precisar de mais alguma biblioteca, basta adicionar o nome dela na lista abaixo. 
-required_packages = ["pandas", "numpy", "matplotlib", "seaborn"]
+required_packages = ["re", "pandas", "scipy", "numpy", "matplotlib", "seaborn"]
 
 def instalar_pacotes():
     for pkg in required_packages:
