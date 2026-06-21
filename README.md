@@ -117,7 +117,7 @@ SCTEC_2026_Mini_Projeto_Avaliativo-DataView/
 
 ## 🎥 Demonstração
 
-- [Inserir link do Google Drive ou YouTube aqui]
+- https://drive.google.com/file/d/1Qcr7WOnI8LG3FmKu6aSUfEnUu7qLtZLY/view?usp=sharing
 
 ## ✅ Resultado esperado
 

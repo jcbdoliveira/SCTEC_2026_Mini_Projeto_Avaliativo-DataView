@@ -1,7 +1,7 @@
 {
-  "datas_invalidas_removidas": 15,
-  "linhas_nulas_removidas": 48,
-  "registros_iniciais": 500,
-  "registros_finais": 437,
-  "registros_removidos_total": 63
+  "datas_invalidas_removidas": 0,
+  "linhas_nulas_removidas": 8,
+  "registros_iniciais": 150,
+  "registros_finais": 142,
+  "registros_removidos_total": 8
 }
