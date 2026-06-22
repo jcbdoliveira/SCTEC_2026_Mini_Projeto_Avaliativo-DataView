@@ -70,7 +70,7 @@ def gerarDatasetVendas(n_registros=150, seed=42):
     return pd.DataFrame(dados) 
 
 def getDatasetVendas():   
-    caminho="https://github.com/jcbdoliveira/SCTEC_2026_Mini_Projeto_Avaliativo-DataView/blob/main/data/raw/sales.csv?raw=true"
+    caminho="https://raw.githubusercontent.com/jcbdoliveira/SCTEC_2026_Mini_Projeto_Avaliativo-DataView/main/data/raw/sales.csv"
     dados = pd.read_csv(caminho)
     print(f"{len(dados)} linhas carregadas.")  
     salvarDatasetVendas(pd.DataFrame(dados))
