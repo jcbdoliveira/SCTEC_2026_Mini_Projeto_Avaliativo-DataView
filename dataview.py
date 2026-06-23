@@ -33,7 +33,9 @@ def main():
     # Se passado argumento "--csv", carrega o dataset existente.
     # Caso contrário, gera um novo dataset.
     mostra_grafico = False
+    vem_CSV = False
     if len(sys.argv) > 1 and sys.argv[1].lower() in ('--csv', 'csv', 'carregar'):
+        vem_CSV = True
         print("Carregando dataset de vendas...")
         dataset_vendas = getDatasetVendas()
         
@@ -84,8 +86,48 @@ def main():
     df_v2 = tratar_outliers(
         df_v1_tmp,
         colunas=["quantidade", "receita_total"],
+        fator=1.5 if vem_CSV == False else 1.0,  # fator mais alto para dados sintéticos, mais rigoroso para dados reais
         metodo='remover'
     )
+
+    ## Histogramas + curva de densidade
+    #fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    #
+    #sns.histplot(df_v1_tmp["quantidade"], kde=True, ax=axes[0], bins=30, color="steelblue")
+    #axes[0].set_title("Distribuição - Quantidade")
+    #
+    #sns.histplot(df_v1_tmp["receita_total"], kde=True, ax=axes[1], bins=30, color="darkorange")
+    #axes[1].set_title("Distribuição - Receita Total")
+    #
+    #plt.tight_layout()
+    #plt.show()
+
+    #df_f15 = tratar_outliers(df_v1_tmp,["quantidade", "receita_total"], fator=1.5, metodo="media")
+    #df_f25 = tratar_outliers(df_v1_tmp,["quantidade", "receita_total"], fator=1.5, metodo="remover")
+    #df_f30 = tratar_outliers(df_v1_tmp, ["quantidade", "receita_total"], fator=1.0, metodo="remover")
+
+    # Criar subplots
+    #fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+
+    # Original
+    #sns.boxplot(data=df_v1_tmp, x="regiao", y="receita_total", ax=axes[0, 0])
+    #axes[0, 0].set_title("Original")
+
+    # Winsorização (fator=1.5)
+    #sns.boxplot(data=df_f15, x="regiao", y="receita_total", ax=axes[0, 1])
+    #axes[0, 1].set_title("Winsorização (fator=1.5)")
+
+    # Outliers removidos (fator=2.5)
+    #sns.boxplot(data=df_f25, x="regiao", y="receita_total", ax=axes[1, 0])
+    #axes[1, 0].set_title("Outliers removidos (fator=1.5)")
+
+    # Outliers removidos (fator=1.0)
+    #sns.boxplot(data=df_f30, x="regiao", y="receita_total", ax=axes[1, 1])
+    #axes[1, 1].set_title("Outliers removidos (fator=1.0)")
+
+    #plt.tight_layout()
+    #plt.show()
+
     df_v2 = df_v2.drop(columns=["receita_total"])    
 
     # Exibir diferença
